@@ -1,306 +1,466 @@
-
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diario de observación alimentaria</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-.wrap{padding:0 0 32px;font-family:var(--font-sans);max-width:640px}
-.topbar{background:var(--bg-warning);border:0.5px solid var(--border-warning);border-radius:10px;padding:12px 16px;margin-bottom:20px;display:flex;align-items:flex-start;gap:12px}
-.topbar-icon{font-size:20px;margin-top:1px;flex-shrink:0}
-.topbar-text h2{font-size:15px;font-weight:500;color:var(--text-primary);margin-bottom:2px}
-.topbar-text p{font-size:12px;color:var(--text-secondary);line-height:1.5}
-label{display:block;font-size:11px;font-weight:500;color:var(--text-accent);letter-spacing:.05em;margin-bottom:5px}
-textarea,input[type=text]{width:100%;background:var(--surface-1);border:0.5px solid var(--border);border-radius:var(--radius);padding:8px 10px;color:var(--text-primary);font-size:13px;font-family:inherit;resize:vertical;line-height:1.5}
-textarea:focus,input:focus{outline:none;border-color:var(--border-accent)}
+body{background:#f8fafc;font-family:'Segoe UI',system-ui,sans-serif;color:#1a1f2e;min-height:100vh}
+.page{max-width:700px;margin:0 auto;padding:24px 20px 60px}
+.header{background:#1a1f2e;border-radius:12px;padding:20px 24px;margin-bottom:24px}
+.header h1{font-size:22px;font-weight:700;color:#fff;margin-bottom:4px}
+.header p{font-size:12px;color:#99aacc}
+.meta-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
 .field{margin-bottom:14px}
+.field label{display:block;font-size:11px;font-weight:600;color:#185FA5;letter-spacing:.05em;text-transform:uppercase;margin-bottom:5px}
+.field input[type=text],.field textarea{width:100%;border:1px solid #d1d5db;border-radius:8px;padding:8px 11px;font-size:13px;font-family:inherit;color:#1a1f2e;background:#fff;resize:vertical}
+.field input[type=text]:focus,.field textarea:focus{outline:none;border-color:#185FA5}
+.field .helper{font-size:11px;color:#9ca3af;margin-top:3px}
+.meal-block{background:#fff;border:1px solid #e5e7eb;border-radius:12px;margin-bottom:14px;overflow:hidden}
+.meal-head{display:flex;align-items:center;justify-content:space-between;padding:11px 16px;border-bottom:1px solid #e5e7eb;cursor:pointer;user-select:none}
+.meal-head:hover{background:#f9fafb}
+.meal-title{font-size:14px;font-weight:600;color:#1a1f2e;display:flex;align-items:center;gap:8px}
+.meal-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.meal-time{font-size:12px;color:#9ca3af}
+.meal-chev{font-size:12px;color:#9ca3af;transition:transform .2s}
+.meal-chev.open{transform:rotate(180deg)}
+.meal-body{padding:14px 16px;display:none}
+.meal-body.open{display:block}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.section-head{display:flex;align-items:center;gap:8px;margin:22px 0 10px;padding-bottom:8px;border-bottom:0.5px solid var(--border)}
-.section-head .meal-icon{font-size:18px}
-.section-head h3{font-size:15px;font-weight:500;color:var(--text-primary)}
-.pill-label{font-size:11px;font-weight:500;color:var(--text-accent);letter-spacing:.05em;margin-bottom:6px}
-.pills{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:14px}
-.pill{font-size:12px;padding:4px 11px;border-radius:20px;border:0.5px solid var(--border);background:var(--surface-0);color:var(--text-secondary);cursor:pointer;transition:all .12s;user-select:none}
-.pill[data-type="H"].on{background:#E6F1FB;border-color:#378ADD;color:#0C447C}
-.pill[data-type="D"].on{background:#EAF3DE;border-color:#639922;color:#27500A}
-.pill[data-type="E"].on{background:#EEEDFE;border-color:#534AB7;color:#3C3489}
-.pill[data-type="R"].on{background:#FAEEDA;border-color:#BA7517;color:#633806}
-.sac-pills .pill[data-type="F"].on{background:#E6F1FB;border-color:#378ADD;color:#0C447C}
-.sac-pills .pill[data-type="C"].on{background:#EAF3DE;border-color:#639922;color:#27500A}
-.sac-pills .pill[data-type="S"].on{background:#EEEDFE;border-color:#534AB7;color:#3C3489}
-.divider{border:none;border-top:0.5px solid var(--border);margin:6px 0 14px}
-.gen-btn{width:100%;margin-top:22px;padding:13px;background:var(--fill-accent);color:var(--on-accent);border:none;border-radius:var(--radius);font-size:14px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity .15s}
-.gen-btn:hover{opacity:.88}
+.pill-label{font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;margin-bottom:6px}
+.pills{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.pill{font-size:12px;padding:5px 12px;border-radius:20px;border:1px solid #d1d5db;background:#f9fafb;color:#6b7280;cursor:pointer;transition:all .12s;user-select:none}
+.pill.on-H{background:#dbeafe;border-color:#3b82f6;color:#1e40af;font-weight:600}
+.pill.on-D{background:#dcfce7;border-color:#22c55e;color:#166534;font-weight:600}
+.pill.on-E{background:#ede9fe;border-color:#8b5cf6;color:#4c1d95;font-weight:600}
+.pill.on-R{background:#fef3c7;border-color:#f59e0b;color:#92400e;font-weight:600}
+.pill.on-F{background:#dbeafe;border-color:#3b82f6;color:#1e40af;font-weight:600}
+.pill.on-C{background:#dcfce7;border-color:#22c55e;color:#166534;font-weight:600}
+.pill.on-S{background:#ede9fe;border-color:#8b5cf6;color:#4c1d95;font-weight:600}
+.divider{border:none;border-top:1px solid #e5e7eb;margin:10px 0}
+.reflex-block{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:16px;margin-bottom:16px}
+.reflex-block h3{font-size:14px;font-weight:600;margin-bottom:12px}
+.dorso{background:#fef3c7;border:1px solid #f59e0b;border-radius:12px;padding:16px;margin-bottom:24px}
+.dorso label{color:#92400e}
+.gen-btn{width:100%;padding:14px;background:#185FA5;color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:opacity .15s}
+.gen-btn:hover{opacity:.9}
 .gen-btn:active{opacity:.75}
-.gen-btn i{font-size:18px}
-.status{text-align:center;font-size:12px;color:var(--text-muted);margin-top:10px;min-height:18px}
-.dorso-card{background:var(--bg-warning);border:0.5px solid var(--border-warning);border-radius:10px;padding:14px 16px;margin-top:20px}
-.dorso-card label{color:var(--text-warning)}
+.gen-btn:disabled{opacity:.5;cursor:not-allowed}
+.status{text-align:center;font-size:12px;color:#6b7280;margin-top:10px;min-height:18px}
+.intro-note{font-size:13px;color:#6b7280;line-height:1.6;margin-bottom:20px;padding:12px 14px;background:#f0f9ff;border-left:3px solid #185FA5;border-radius:0 8px 8px 0}
+@media(max-width:500px){.grid2{grid-template-columns:1fr}.meta-row{grid-template-columns:1fr}}
 </style>
+</head>
+<body>
+<div class="page">
 
-<div class="wrap">
-  <h2 class="sr-only">Planilla de registro alimentario — genera PDF descargable</h2>
+<div class="header">
+  <h1>Diario de observación alimentaria</h1>
+  <p>Taller Integrador &middot; Prof. Sandra Sartor &middot; Lic. en Nutrici&oacute;n &mdash; UNC</p>
+</div>
 
-  <div class="topbar">
-    <div class="topbar-icon" aria-hidden="true"><i class="ti ti-clipboard-text" style="font-size:22px;color:var(--text-warning)"></i></div>
-    <div class="topbar-text">
-      <h2>Diario de observación alimentaria</h2>
-      <p>Completá el formulario y descargá tu PDF para traer al taller. No contamos calorías — observamos patrones.</p>
+<div class="intro-note">
+  Registr&aacute; un d&iacute;a completo sin cambiar nada. No contamos calor&iacute;as &mdash; observamos patrones. Complet&aacute; lo que puedas; no hay respuestas incorrectas.
+</div>
+
+<div class="meta-row">
+  <div class="field"><label>Fecha del registro</label><input type="text" id="fecha" placeholder="ej: lunes 14 de julio"></div>
+  <div class="field"><label>Nombre (opcional)</label><input type="text" id="nombre" placeholder="Para uso personal"></div>
+</div>
+<div class="field"><label>Tu relaci&oacute;n con la comida hoy &mdash; tres palabras</label><input type="text" id="relacion" placeholder="ej: autom&aacute;tica, conflictiva, placentera..."></div>
+
+<!-- DESAYUNO -->
+<div class="meal-block" id="m-D">
+  <div class="meal-head" onclick="tog('D')">
+    <div class="meal-title"><span class="meal-dot" style="background:#185FA5"></span>Desayuno</div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <input type="text" id="D_hora" placeholder="Horario" onclick="event.stopPropagation()" style="width:90px;border:1px solid #d1d5db;border-radius:6px;padding:4px 8px;font-size:12px;color:#374151">
+      <span class="meal-chev" id="chev-D">&#9660;</span>
     </div>
   </div>
+  <div class="meal-body" id="body-D">
+    <div class="grid2">
+      <div class="field"><label>Contexto</label><input type="text" id="D_ctx" placeholder="&iquest;D&oacute;nde? &iquest;Con qui&eacute;n?"></div>
+      <div class="field"><label>&iquest;Qu&eacute; sent&iacute;as antes?</label><input type="text" id="D_antes" placeholder="Estado emocional, hambre..."></div>
+    </div>
+    <div class="field"><label>&iquest;Qu&eacute; comiste?</label><textarea id="D_que" rows="2" placeholder="Sin juzgarlo..."></textarea></div>
+    <div class="pill-label" style="color:#185FA5">Tipo de hambre</div>
+    <div class="pills" id="pills-D">
+      <span class="pill" data-t="H">Homeost&aacute;tica</span>
+      <span class="pill" data-t="D">Hed&oacute;nica</span>
+      <span class="pill" data-t="E">Emocional</span>
+      <span class="pill" data-t="R">Reactiva / externa</span>
+      <span class="pill" data-t="H">No lo s&eacute;</span>
+    </div>
+    <div class="pill-label" style="color:#166534">Saciedad</div>
+    <div class="pills" id="sac-D">
+      <span class="pill" data-t="F">Fisiol&oacute;gica</span>
+      <span class="pill" data-t="C">Cognitiva</span>
+      <span class="pill" data-t="S">No llegu&eacute; a saciarme</span>
+      <span class="pill" data-t="S">Com&iacute; de m&aacute;s</span>
+    </div>
+    <div class="field"><label>&iquest;C&oacute;mo te sentiste despu&eacute;s?</label><textarea id="D_desp" rows="2" placeholder="F&iacute;sico, emocional, mental..."></textarea></div>
+  </div>
+</div>
 
-  <div class="grid2">
-    <div class="field"><label>FECHA DEL REGISTRO</label><input type="text" id="fecha" placeholder="ej: lunes 14 de julio"></div>
-    <div class="field"><label>NOMBRE (opcional)</label><input type="text" id="nombre" placeholder="Para uso personal"></div>
-  </div>
-  <div class="field"><label>TU RELACIÓN CON LA COMIDA HOY — TRES PALABRAS</label><input type="text" id="relacion" placeholder="ej: automática, conflictiva, placentera..."></div>
-
-  <!-- DESAYUNO -->
-  <div class="section-head"><span class="meal-icon">🌅</span><h3>Desayuno</h3></div>
-  <div class="grid2">
-    <div class="field"><label>HORARIO</label><input type="text" id="d_hora" placeholder="ej: 8:00 hs"></div>
-    <div class="field"><label>CONTEXTO</label><input type="text" id="d_ctx" placeholder="¿Con quién? ¿Haciendo qué?"></div>
-  </div>
-  <div class="field"><label>¿QUÉ COMISTE?</label><textarea id="d_que" rows="2" placeholder="Sin juzgarlo..."></textarea></div>
-  <div class="field"><label>¿QUÉ SENTÍAS ANTES?</label><textarea id="d_antes" rows="2" placeholder="Estado emocional, nivel de hambre..."></textarea></div>
-  <div class="pill-label">TIPO DE HAMBRE</div>
-  <div class="pills" data-meal="d">
-    <span class="pill" data-type="H">Homeostática</span>
-    <span class="pill" data-type="D">Hedónica</span>
-    <span class="pill" data-type="E">Emocional</span>
-    <span class="pill" data-type="R">Reactiva / externa</span>
-    <span class="pill" data-type="H">No lo sé</span>
-  </div>
-  <div class="pill-label">SACIEDAD</div>
-  <div class="pills sac-pills" data-meal="ds">
-    <span class="pill" data-type="F">Fisiológica</span>
-    <span class="pill" data-type="C">Cognitiva</span>
-    <span class="pill" data-type="S">No llegué a saciarme</span>
-    <span class="pill" data-type="S">Comí de más</span>
-  </div>
-  <div class="field"><label>¿CÓMO TE SENTISTE DESPUÉS?</label><textarea id="d_desp" rows="2" placeholder="Físico, emocional, mental..."></textarea></div>
-
-  <div class="divider"></div>
-
-  <!-- ALMUERZO -->
-  <div class="section-head"><span class="meal-icon">☀️</span><h3>Almuerzo</h3></div>
-  <div class="grid2">
-    <div class="field"><label>HORARIO</label><input type="text" id="a_hora" placeholder="ej: 13:00 hs"></div>
-    <div class="field"><label>CONTEXTO</label><input type="text" id="a_ctx" placeholder=""></div>
-  </div>
-  <div class="field"><label>¿QUÉ COMISTE?</label><textarea id="a_que" rows="2" placeholder=""></textarea></div>
-  <div class="field"><label>¿QUÉ SENTÍAS ANTES?</label><textarea id="a_antes" rows="2" placeholder=""></textarea></div>
-  <div class="pill-label">TIPO DE HAMBRE</div>
-  <div class="pills" data-meal="a">
-    <span class="pill" data-type="H">Homeostática</span>
-    <span class="pill" data-type="D">Hedónica</span>
-    <span class="pill" data-type="E">Emocional</span>
-    <span class="pill" data-type="R">Reactiva / externa</span>
-    <span class="pill" data-type="H">No lo sé</span>
-  </div>
-  <div class="pill-label">SACIEDAD</div>
-  <div class="pills sac-pills" data-meal="as">
-    <span class="pill" data-type="F">Fisiológica</span>
-    <span class="pill" data-type="C">Cognitiva</span>
-    <span class="pill" data-type="S">No llegué a saciarme</span>
-    <span class="pill" data-type="S">Comí de más</span>
-  </div>
-  <div class="field"><label>¿CÓMO TE SENTISTE DESPUÉS?</label><textarea id="a_desp" rows="2" placeholder=""></textarea></div>
-
-  <div class="divider"></div>
-
-  <!-- COLACIONES -->
-  <div class="section-head"><span class="meal-icon">🌤️</span><h3>Colaciones / snacks</h3></div>
-  <div class="grid2">
-    <div class="field"><label>HORARIO</label><input type="text" id="c_hora" placeholder="ej: 16:30 hs"></div>
-    <div class="field"><label>CONTEXTO</label><input type="text" id="c_ctx" placeholder=""></div>
-  </div>
-  <div class="field"><label>¿QUÉ COMISTE?</label><textarea id="c_que" rows="2" placeholder="Incluí todo, aunque sea pequeño"></textarea></div>
-  <div class="pill-label">TIPO DE HAMBRE</div>
-  <div class="pills" data-meal="c">
-    <span class="pill" data-type="H">Homeostática</span>
-    <span class="pill" data-type="D">Hedónica</span>
-    <span class="pill" data-type="E">Emocional</span>
-    <span class="pill" data-type="R">Reactiva / externa</span>
-    <span class="pill" data-type="H">No lo sé</span>
-  </div>
-  <div class="field"><label>¿CÓMO TE SENTISTE DESPUÉS?</label><textarea id="c_desp" rows="2" placeholder=""></textarea></div>
-
-  <div class="divider"></div>
-
-  <!-- CENA -->
-  <div class="section-head"><span class="meal-icon">🌙</span><h3>Cena</h3></div>
-  <div class="grid2">
-    <div class="field"><label>HORARIO</label><input type="text" id="ce_hora" placeholder="ej: 21:00 hs"></div>
-    <div class="field"><label>CONTEXTO</label><input type="text" id="ce_ctx" placeholder=""></div>
-  </div>
-  <div class="field"><label>¿QUÉ COMISTE?</label><textarea id="ce_que" rows="2" placeholder=""></textarea></div>
-  <div class="field"><label>¿QUÉ SENTÍAS ANTES?</label><textarea id="ce_antes" rows="2" placeholder=""></textarea></div>
-  <div class="pill-label">TIPO DE HAMBRE</div>
-  <div class="pills" data-meal="ce">
-    <span class="pill" data-type="H">Homeostática</span>
-    <span class="pill" data-type="D">Hedónica</span>
-    <span class="pill" data-type="E">Emocional</span>
-    <span class="pill" data-type="R">Reactiva / externa</span>
-    <span class="pill" data-type="H">No lo sé</span>
-  </div>
-  <div class="pill-label">SACIEDAD</div>
-  <div class="pills sac-pills" data-meal="ces">
-    <span class="pill" data-type="F">Fisiológica</span>
-    <span class="pill" data-type="C">Cognitiva</span>
-    <span class="pill" data-type="S">No llegué a saciarme</span>
-    <span class="pill" data-type="S">Comí de más</span>
-  </div>
-  <div class="field"><label>¿CÓMO TE SENTISTE DESPUÉS?</label><textarea id="ce_desp" rows="2" placeholder=""></textarea></div>
-
-  <div class="divider"></div>
-
-  <!-- REFLEXIÓN -->
-  <div class="section-head"><span class="meal-icon">💭</span><h3>Reflexión al final del día</h3></div>
-  <div class="field"><label>¿HUBO ALGÚN MOMENTO EN QUE COMISTE "PORQUE ESTABA AHÍ"?</label><textarea id="r1" rows="2" placeholder="Describilo sin juzgarlo..."></textarea></div>
-  <div class="field"><label>¿HUBO ALGÚN MOMENTO EN QUE SENTISTE HAMBRE REAL Y NO COMISTE?</label><textarea id="r2" rows="2" placeholder="¿Por qué?"></textarea></div>
-  <div class="pill-label">¿CON QUÉ TIPO DE HAMBRE PREDOMINÓ TU DÍA?</div>
-  <div class="pills" data-meal="res">
-    <span class="pill" data-type="H">Homeostática</span>
-    <span class="pill" data-type="D">Hedónica</span>
-    <span class="pill" data-type="E">Emocional</span>
-    <span class="pill" data-type="R">Reactiva / externa</span>
-    <span class="pill" data-type="H">Mezcla de varias</span>
-  </div>
-
-  <!-- DORSO -->
-  <div class="dorso-card">
-    <div class="field" style="margin-bottom:0">
-      <label>PARA LLEVAR AL TALLER — TRES PALABRAS QUE DESCRIBEN TU RELACIÓN CON TU CUERPO</label>
-      <input type="text" id="cuerpo" placeholder="Esta respuesta se usa en la dinámica del Bloque 4...">
+<!-- ALMUERZO -->
+<div class="meal-block" id="m-A">
+  <div class="meal-head" onclick="tog('A')">
+    <div class="meal-title"><span class="meal-dot" style="background:#0F6E56"></span>Almuerzo</div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <input type="text" id="A_hora" placeholder="Horario" onclick="event.stopPropagation()" style="width:90px;border:1px solid #d1d5db;border-radius:6px;padding:4px 8px;font-size:12px;color:#374151">
+      <span class="meal-chev" id="chev-A">&#9660;</span>
     </div>
   </div>
+  <div class="meal-body" id="body-A">
+    <div class="grid2">
+      <div class="field"><label>Contexto</label><input type="text" id="A_ctx" placeholder=""></div>
+      <div class="field"><label>&iquest;Qu&eacute; sent&iacute;as antes?</label><input type="text" id="A_antes" placeholder=""></div>
+    </div>
+    <div class="field"><label>&iquest;Qu&eacute; comiste?</label><textarea id="A_que" rows="2" placeholder=""></textarea></div>
+    <div class="pill-label" style="color:#185FA5">Tipo de hambre</div>
+    <div class="pills" id="pills-A">
+      <span class="pill" data-t="H">Homeost&aacute;tica</span>
+      <span class="pill" data-t="D">Hed&oacute;nica</span>
+      <span class="pill" data-t="E">Emocional</span>
+      <span class="pill" data-t="R">Reactiva / externa</span>
+      <span class="pill" data-t="H">No lo s&eacute;</span>
+    </div>
+    <div class="pill-label" style="color:#166534">Saciedad</div>
+    <div class="pills" id="sac-A">
+      <span class="pill" data-t="F">Fisiol&oacute;gica</span>
+      <span class="pill" data-t="C">Cognitiva</span>
+      <span class="pill" data-t="S">No llegu&eacute; a saciarme</span>
+      <span class="pill" data-t="S">Com&iacute; de m&aacute;s</span>
+    </div>
+    <div class="field"><label>&iquest;C&oacute;mo te sentiste despu&eacute;s?</label><textarea id="A_desp" rows="2" placeholder=""></textarea></div>
+  </div>
+</div>
 
-  <button class="gen-btn" id="genbtn" onclick="generarPDF()">
-    <i class="ti ti-file-download" aria-hidden="true"></i>
-    Generar y descargar PDF
-  </button>
-  <div class="status" id="status"></div>
+<!-- COLACIONES -->
+<div class="meal-block" id="m-C">
+  <div class="meal-head" onclick="tog('C')">
+    <div class="meal-title"><span class="meal-dot" style="background:#854F0B"></span>Colaciones / snacks</div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <input type="text" id="C_hora" placeholder="Horario" onclick="event.stopPropagation()" style="width:90px;border:1px solid #d1d5db;border-radius:6px;padding:4px 8px;font-size:12px;color:#374151">
+      <span class="meal-chev" id="chev-C">&#9660;</span>
+    </div>
+  </div>
+  <div class="meal-body" id="body-C">
+    <div class="field"><label>Contexto</label><input type="text" id="C_ctx" placeholder=""></div>
+    <div class="field"><label>&iquest;Qu&eacute; comiste?</label><textarea id="C_que" rows="2" placeholder="Inclu&iacute; todo, aunque sea peque&ntilde;o"></textarea></div>
+    <div class="pill-label" style="color:#185FA5">Tipo de hambre</div>
+    <div class="pills" id="pills-C">
+      <span class="pill" data-t="H">Homeost&aacute;tica</span>
+      <span class="pill" data-t="D">Hed&oacute;nica</span>
+      <span class="pill" data-t="E">Emocional</span>
+      <span class="pill" data-t="R">Reactiva / externa</span>
+      <span class="pill" data-t="H">No lo s&eacute;</span>
+    </div>
+    <div class="field"><label>&iquest;C&oacute;mo te sentiste despu&eacute;s?</label><textarea id="C_desp" rows="2" placeholder=""></textarea></div>
+  </div>
+</div>
+
+<!-- CENA -->
+<div class="meal-block" id="m-CE">
+  <div class="meal-head" onclick="tog('CE')">
+    <div class="meal-title"><span class="meal-dot" style="background:#534AB7"></span>Cena</div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <input type="text" id="CE_hora" placeholder="Horario" onclick="event.stopPropagation()" style="width:90px;border:1px solid #d1d5db;border-radius:6px;padding:4px 8px;font-size:12px;color:#374151">
+      <span class="meal-chev" id="chev-CE">&#9660;</span>
+    </div>
+  </div>
+  <div class="meal-body" id="body-CE">
+    <div class="grid2">
+      <div class="field"><label>Contexto</label><input type="text" id="CE_ctx" placeholder=""></div>
+      <div class="field"><label>&iquest;Qu&eacute; sent&iacute;as antes?</label><input type="text" id="CE_antes" placeholder=""></div>
+    </div>
+    <div class="field"><label>&iquest;Qu&eacute; comiste?</label><textarea id="CE_que" rows="2" placeholder=""></textarea></div>
+    <div class="pill-label" style="color:#185FA5">Tipo de hambre</div>
+    <div class="pills" id="pills-CE">
+      <span class="pill" data-t="H">Homeost&aacute;tica</span>
+      <span class="pill" data-t="D">Hed&oacute;nica</span>
+      <span class="pill" data-t="E">Emocional</span>
+      <span class="pill" data-t="R">Reactiva / externa</span>
+      <span class="pill" data-t="H">No lo s&eacute;</span>
+    </div>
+    <div class="pill-label" style="color:#166534">Saciedad</div>
+    <div class="pills" id="sac-CE">
+      <span class="pill" data-t="F">Fisiol&oacute;gica</span>
+      <span class="pill" data-t="C">Cognitiva</span>
+      <span class="pill" data-t="S">No llegu&eacute; a saciarme</span>
+      <span class="pill" data-t="S">Com&iacute; de m&aacute;s</span>
+    </div>
+    <div class="field"><label>&iquest;C&oacute;mo te sentiste despu&eacute;s?</label><textarea id="CE_desp" rows="2" placeholder=""></textarea></div>
+  </div>
+</div>
+
+<!-- REFLEXION -->
+<div class="reflex-block">
+  <h3>Reflexion al final del dia</h3>
+  <div class="field"><label>Comiste "porque estaba ahi" o "para no pensar"?</label><textarea id="r1" rows="2" placeholder="Describilo sin juzgarlo..."></textarea></div>
+  <div class="field"><label>Hubo algun momento en que sentiste hambre real y no comiste?</label><textarea id="r2" rows="2" placeholder="Por que?"></textarea></div>
+  <div class="pill-label" style="color:#185FA5">Con que tipo de hambre predomino tu dia?</div>
+  <div class="pills" id="pills-R">
+    <span class="pill" data-t="H">Homeostatica</span>
+    <span class="pill" data-t="D">Hedonica</span>
+    <span class="pill" data-t="E">Emocional</span>
+    <span class="pill" data-t="R">Reactiva / externa</span>
+    <span class="pill" data-t="H">Mezcla de varias</span>
+  </div>
+</div>
+
+<!-- DORSO -->
+<div class="dorso">
+  <div class="field" style="margin-bottom:0">
+    <label>Para llevar al taller - Bloque 4</label>
+    <input type="text" id="cuerpo" placeholder="Tres palabras que describen tu relacion con tu cuerpo...">
+    <div class="helper">Esta respuesta se trabaja en la dinamica 'Mi dieta invisible' del cierre del taller.</div>
+  </div>
+</div>
+
+<button class="gen-btn" id="genbtn" onclick="generarPDF()">
+  &#8595; Generar y descargar PDF
+</button>
+<div class="status" id="status"></div>
+
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
-document.querySelectorAll('.pill').forEach(p=>{
-  p.addEventListener('click',()=>p.classList.toggle('on'));
+function tog(id){
+  var b=document.getElementById('body-'+id);
+  var c=document.getElementById('chev-'+id);
+  var open=b.classList.contains('open');
+  b.classList.toggle('open',!open);
+  c.classList.toggle('open',!open);
+}
+
+document.querySelectorAll('.pill').forEach(function(p){
+  p.addEventListener('click',function(){
+    var t=this.dataset.t;
+    var cls='on-'+t;
+    if(this.classList.contains(cls)){this.classList.remove(cls);}
+    else{this.classList.add(cls);}
+  });
 });
 
-function v(id){return(document.getElementById(id)||{}).value||'';}
+function v(id){var el=document.getElementById(id);return el?el.value.trim():'';}
 
-function getPills(meal){
-  const sel=[];
-  document.querySelectorAll(`.pills[data-meal="${meal}"] .pill.on`).forEach(p=>sel.push(p.textContent.trim()));
-  return sel.length?sel.join(', '):'—';
+function getPills(containerId){
+  var sel=[];
+  var container=document.getElementById(containerId);
+  if(!container)return'--';
+  container.querySelectorAll('.pill[class*="on-"]').forEach(function(p){
+    sel.push(p.textContent.trim());
+  });
+  return sel.length?sel.join(', '):'--';
 }
 
-function wrapText(doc,text,x,y,maxW,lineH){
-  if(!text||text==='—'){doc.text('—',x,y);return y+lineH;}
-  const lines=doc.splitTextToSize(text,maxW);
-  doc.text(lines,x,y);
-  return y+lines.length*lineH;
-}
-
-async function generarPDF(){
-  const btn=document.getElementById('genbtn');
-  const st=document.getElementById('status');
+function generarPDF(){
+  var btn=document.getElementById('genbtn');
+  var st=document.getElementById('status');
   btn.disabled=true;
-  btn.querySelector('i').className='ti ti-loader';
-  st.textContent='Generando PDF...';
+  btn.textContent='Generando...';
+  st.textContent='';
 
   try{
-    const {jsPDF}=window.jspdf;
-    const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
-    const W=210,M=18,CW=W-M*2;
-    const LH=5.5,SH=7;
-    let y=M;
+    var jsPDF=window.jspdf.jsPDF;
+    var doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+    var PW=210, M=18, CW=PW-M*2;
+    var y=M;
 
-    const DARK='#1a1a2e', ACC='#185FA5', GREEN='#3B6D11', AMB='#854F0B', LAV='#534AB7', MUT='#5F5E5A', LT='#f4f6fb';
+    // Colors
+    var DARK='#1a1f2e', ACC='#185FA5', GREEN='#166534', AMB='#92400e', LAV='#4c1d95';
+    var MUT='#6b7280', LIGHT='#f4f6fb', AMB_BG='#fef3c7', AMB_BD='#f59e0b';
+    var WHITE='#ffffff', BLUE_L='#dbeafe';
 
-    const rect=(x,ry,w,h,fill,stroke)=>{
-      if(fill){doc.setFillColor(fill);if(stroke){doc.setDrawColor(stroke);doc.roundedRect(x,ry,w,h,2,2,'FD');}else{doc.roundedRect(x,ry,w,h,2,2,'F');}}
-      else if(stroke){doc.setDrawColor(stroke);doc.roundedRect(x,ry,w,h,2,2,'S');}
-    };
+    function setFont(bold,size,color){
+      doc.setFont('helvetica', bold?'bold':'normal');
+      doc.setFontSize(size||10);
+      doc.setTextColor(color||DARK);
+    }
 
-    const hline=(hy,c)=>{doc.setDrawColor(c||'#d0d4de');doc.setLineWidth(.25);doc.line(M,hy,W-M,hy);};
+    function rule(ry,color){
+      doc.setDrawColor(color||'#e5e7eb');
+      doc.setLineWidth(0.3);
+      doc.line(M,ry,PW-M,ry);
+    }
 
-    const label=(t,lx,ly,c)=>{doc.setFontSize(7.5);doc.setFont('helvetica','bold');doc.setTextColor(c||ACC);doc.text(t.toUpperCase(),lx,ly);};
+    function checkPage(need){
+      if(y+need>282){doc.addPage();y=M;}
+    }
 
-    const body=(t,bx,by,c,maxW)=>{doc.setFontSize(10);doc.setFont('helvetica','normal');doc.setTextColor(c||DARK);if(!t||t.trim()===''){doc.setTextColor(MUT);doc.text('—',bx,by);return by+LH;}const lines=doc.splitTextToSize(t,maxW||CW);doc.text(lines,bx,by);return by+lines.length*LH;};
+    function addLabel(text, color){
+      checkPage(8);
+      setFont(true,7.5,color||ACC);
+      doc.text(text.toUpperCase(),M,y);
+      y+=5;
+    }
 
-    const newPage=()=>{doc.addPage();y=M;};
-    const checkPage=(need)=>{if(y+need>285)newPage();};
+    function addBody(text, color, maxW){
+      if(!text||text==='--'){
+        setFont(false,9.5,MUT);
+        doc.text('--',M,y);
+        y+=5;
+        return;
+      }
+      setFont(false,10,color||DARK);
+      var lines=doc.splitTextToSize(text,maxW||CW);
+      checkPage(lines.length*5+2);
+      doc.text(lines,M,y);
+      y+=lines.length*5+2;
+    }
 
-    const mealBlock=(icon,title,hora,ctx,que,antes,pillH,pillS,desp)=>{
-      checkPage(60);
-      rect(M,y,CW,7,LT,null);
-      doc.setFontSize(11);doc.setFont('helvetica','bold');doc.setTextColor(DARK);
-      doc.text(icon+' '+title,M+3,y+5);
-      if(hora){doc.setFontSize(8);doc.setFont('helvetica','normal');doc.setTextColor(MUT);doc.text(hora,W-M-doc.getTextWidth(hora),y+5);}
+    function addPills(text, color){
+      if(!text||text==='--')return;
+      setFont(false,9,color||ACC);
+      var lines=doc.splitTextToSize(text,CW);
+      checkPage(lines.length*4.5+2);
+      doc.text(lines,M,y);
+      y+=lines.length*4.5+2;
+    }
+
+    function mealSection(title, accentColor, hora, ctx, que, antes, pillH, sacLabel, pillS, desp){
+      checkPage(50);
+      // Colored left bar
+      doc.setFillColor(accentColor);
+      doc.rect(M,y,2,6,'F');
+      setFont(true,11.5,DARK);
+      doc.text(title,M+4,y+4.5);
+      if(hora){
+        setFont(false,9,MUT);
+        doc.text(hora,PW-M-doc.getTextWidth(hora),y+4.5);
+      }
       y+=9;
+      rule(y,'#e5e7eb'); y+=4;
 
-      if(ctx){label('Contexto',M,y);y+=4;y=body(ctx,M,y,DARK)+2;}
-      checkPage(20);label('¿Qué comiste?',M,y);y+=4;y=body(que,M,y,DARK)+2;
-      if(antes){checkPage(16);label('¿Qué sentías antes?',M,y);y+=4;y=body(antes,M,y,DARK)+2;}
-      checkPage(12);label('Tipo de hambre',M,y,ACC);y+=4;
-      doc.setFontSize(9.5);doc.setFont('helvetica','normal');doc.setTextColor(ACC);doc.text(pillH,M,y);y+=LH+1;
-      if(pillS){label('Saciedad',M,y,GREEN);y+=4;doc.setTextColor(GREEN);doc.text(pillS,M,y);y+=LH+1;}
-      if(desp){checkPage(16);label('¿Cómo te sentiste después?',M,y);y+=4;y=body(desp,M,y,DARK)+2;}
-      hline(y);y+=4;
-    };
+      if(ctx){
+        addLabel('Contexto',ACC);
+        addBody(ctx);
+      }
+      addLabel('Que comiste',ACC);
+      addBody(que);
+      if(antes){
+        addLabel('Que sentias antes',ACC);
+        addBody(antes);
+      }
+      addLabel('Tipo de hambre',ACC);
+      addPills(pillH,ACC);
+      if(sacLabel&&pillS){
+        addLabel(sacLabel,GREEN);
+        addPills(pillS,GREEN);
+      }
+      addLabel('Como te sentiste despues',ACC);
+      addBody(desp);
+      y+=2;
+      rule(y,'#d1d5db'); y+=5;
+    }
 
-    rect(M,y,CW,20,DARK,null);
-    doc.setFontSize(13);doc.setFont('helvetica','bold');doc.setTextColor('#ffffff');
-    doc.text('Diario de observación alimentaria',M+4,y+8);
-    doc.setFontSize(8.5);doc.setFont('helvetica','normal');doc.setTextColor('#99aacc');
-    doc.text('Taller Integrador · Prof. Sandra Sartor · Lic. en Nutrición — UNC',M+4,y+14.5);
-    y+=24;
+    // ── HEADER ──
+    doc.setFillColor(DARK);
+    doc.rect(0,0,PW,28,'F');
+    setFont(true,18,WHITE);
+    doc.text('Diario de observacion alimentaria',M,13);
+    setFont(false,8.5,'#99aacc');
+    doc.text('Taller Integrador  |  Prof. Sandra Sartor  |  Lic. en Nutricion - UNC',M,20);
+    y=34;
 
-    const fecha=v('fecha')||'—', nombre=v('nombre')||'—';
-    doc.setFontSize(9);doc.setFont('helvetica','normal');doc.setTextColor(MUT);
-    doc.text('Fecha: '+fecha+'    Nombre: '+nombre,M,y);y+=7;
+    // META
+    setFont(true,7.5,ACC);
+    doc.text('FECHA',M,y);
+    doc.text('NOMBRE',M+80,y);
+    y+=4;
+    setFont(false,10,DARK);
+    doc.text((v('fecha')||'--'),M,y);
+    doc.text((v('nombre')||'--'),M+80,y);
+    y+=7;
 
-    label('Tu relación con la comida hoy — tres palabras',M,y);y+=4;
-    y=body(v('relacion')||'—',M,y,DARK)+4;
-    hline(y);y+=5;
+    addLabel('Tu relacion con la comida hoy - tres palabras');
+    addBody(v('relacion'));
+    y+=2; rule(y); y+=5;
 
-    mealBlock('🌅','Desayuno',v('d_hora'),v('d_ctx'),v('d_que'),v('d_antes'),getPills('d'),getPills('ds'),v('d_desp'));
-    mealBlock('☀️','Almuerzo',v('a_hora'),v('a_ctx'),v('a_que'),v('a_antes'),getPills('a'),getPills('as'),v('a_desp'));
-    mealBlock('🌤️','Colaciones / snacks',v('c_hora'),v('c_ctx'),v('c_que'),null,getPills('c'),null,v('c_desp'));
-    mealBlock('🌙','Cena',v('ce_hora'),v('ce_ctx'),v('ce_que'),v('ce_antes'),getPills('ce'),getPills('ces'),v('ce_desp'));
+    // Intro
+    setFont(false,9,MUT);
+    var intro='Registra un dia completo sin cambiar nada. No contamos calorias - observamos patrones.';
+    doc.text(doc.splitTextToSize(intro,CW),M,y);
+    y+=10;
 
+    // MEALS
+    mealSection('Desayuno',ACC,
+      v('D_hora'), v('D_ctx'), v('D_que'), v('D_antes'),
+      getPills('pills-D'), 'Saciedad', getPills('sac-D'), v('D_desp'));
+
+    mealSection('Almuerzo','#0F6E56',
+      v('A_hora'), v('A_ctx'), v('A_que'), v('A_antes'),
+      getPills('pills-A'), 'Saciedad', getPills('sac-A'), v('A_desp'));
+
+    mealSection('Colaciones / snacks',AMB_BD,
+      v('C_hora'), v('C_ctx'), null, null,
+      getPills('pills-C'), null, null, v('C_desp'));
+
+    mealSection('Cena',LAV,
+      v('CE_hora'), v('CE_ctx'), v('CE_que'), v('CE_antes'),
+      getPills('pills-CE'), 'Saciedad', getPills('sac-CE'), v('CE_desp'));
+
+    // REFLEXION
     checkPage(40);
-    doc.setFontSize(11);doc.setFont('helvetica','bold');doc.setTextColor(DARK);
-    doc.text('💭 Reflexión al final del día',M,y);y+=7;
-    label('¿Comiste "porque estaba ahí"?',M,y);y+=4;y=body(v('r1')||'—',M,y,DARK)+3;
-    checkPage(16);label('¿Hambre real que no atendiste?',M,y);y+=4;y=body(v('r2')||'—',M,y,DARK)+3;
-    checkPage(10);label('Tipo de hambre predominante',M,y,ACC);y+=4;
-    doc.setFontSize(9.5);doc.setTextColor(ACC);doc.text(getPills('res'),M,y);y+=8;
+    doc.setFillColor(DARK);
+    doc.rect(M,y,2,6,'F');
+    setFont(true,11.5,DARK);
+    doc.text('Reflexion al final del dia',M+4,y+4.5);
+    y+=9; rule(y,'#e5e7eb'); y+=4;
 
-    checkPage(24);
-    rect(M,y,CW,20,'#FFFBF0','#EF9F27');
-    doc.setFontSize(8);doc.setFont('helvetica','bold');doc.setTextColor(AMB);
-    doc.text('PARA LLEVAR AL TALLER — BLOQUE 4',M+3,y+5.5);
-    doc.setFontSize(9);doc.setFont('helvetica','normal');doc.setTextColor(DARK);
-    const cuerpoVal=v('cuerpo')||'...';
-    doc.text('Tres palabras que describen mi relación con mi cuerpo: '+cuerpoVal,M+3,y+12);
-    y+=24;
+    addLabel('Comiste "porque estaba ahi" o "para no pensar"?');
+    addBody(v('r1'));
+    addLabel('Hubo hambre real que no atendiste?');
+    addBody(v('r2'));
+    addLabel('Tipo de hambre predominante');
+    addPills(getPills('pills-R'));
+    y+=3;
 
-    checkPage(12);
-    doc.setFontSize(7.5);doc.setFont('helvetica','italic');doc.setTextColor(MUT);
-    doc.text('Registro personal · Taller Bienestar, Conducta Alimentaria y Habilidades Blandas · Sensus © 2025',M,y);
+    // DORSO CARD
+    checkPage(28);
+    doc.setFillColor(AMB_BG);
+    doc.setDrawColor(AMB_BD);
+    doc.setLineWidth(0.5);
+    doc.rect(M,y,CW,22,'FD');
+    doc.setFillColor(AMB_BD);
+    doc.rect(M,y,CW,1.5,'F');
+    setFont(true,7.5,AMB);
+    doc.text('PARA LLEVAR AL TALLER - BLOQUE 4',M+4,y+7);
+    setFont(false,10,DARK);
+    doc.text('Tres palabras que describen mi relacion con mi cuerpo:',M+4,y+13);
+    setFont(false,10,MUT);
+    doc.text(v('cuerpo')||'...',M+4,y+19);
+    y+=26;
 
-    const fecha_safe=(v('fecha')||'registro').replace(/[^a-zA-Z0-9]/g,'_');
-    doc.save('diario_alimentario_'+fecha_safe+'.pdf');
+    // FOOTER
+    rule(y,'#e5e7eb'); y+=4;
+    setFont(false,7.5,MUT);
+    var foot='Registro personal  |  Taller Bienestar, Conducta Alimentaria y Habilidades Blandas  |  Lic. en Nutricion - UNC  |  Prof. Sandra Sartor';
+    var fw=doc.getTextWidth(foot);
+    doc.text(foot,(PW-fw)/2,y);
 
+    // SAVE
+    var fname='diario_alimentario_'+(v('fecha')||'registro').replace(/[^a-zA-Z0-9]/g,'_')+'.pdf';
+    doc.save(fname);
     btn.disabled=false;
-    btn.querySelector('i').className='ti ti-file-download';
+    btn.textContent='\u2193 Generar y descargar PDF';
     st.textContent='PDF descargado correctamente.';
-    setTimeout(()=>st.textContent='',4000);
-  } catch(e){
+    setTimeout(function(){st.textContent='';},4000);
+
+  }catch(e){
     btn.disabled=false;
-    btn.querySelector('i').className='ti ti-file-download';
-    st.textContent='Error al generar PDF. Intentá de nuevo.';
+    btn.textContent='\u2193 Generar y descargar PDF';
+    st.textContent='Error al generar el PDF. Intenta de nuevo.';
     console.error(e);
   }
 }
+
+// Open first meal by default
+tog('D');
 </script>
+</body>
+</html>
